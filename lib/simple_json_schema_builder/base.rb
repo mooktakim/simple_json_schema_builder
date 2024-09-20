@@ -83,14 +83,14 @@ module SimpleJsonSchemaBuilder
     end
 
     def add_property(type, key_name, title:, description:, examples:, enum:)
-      enum = [enum].flatten
-      examples = [examples].flatten
+      enum = [enum].flatten.compact
+      examples = [examples].flatten.compact
 
       @properties[key_name] = { type: type }
       @properties[key_name][:description] = description if description
       @properties[key_name][:title] = title if title
-      @properties[key_name][:examples] = examples if examples
-      @properties[key_name][:enum] = enum if enum
+      @properties[key_name][:examples] = examples unless examples.empty?
+      @properties[key_name][:enum] = enum unless enum.empty?
     end
 
     def add_array(key_name, array)

@@ -1,28 +1,154 @@
 # SimpleJsonSchemaBuilder
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/simple_json_schema_builder`. To experiment with that code, run `bin/console` for an interactive prompt.
+A simple DSL to help you write JSON Schema in ruby.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+gem 'simple_json_schema_builder'
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+And then execute:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle
 ```
+
+Or install it yourself as:
+
+```bash
+gem install simple_json_schema_builder
+```
+
+`simple_json_schema_builder` depends on [multi_json](https://github.com/intridea/multi_json) to serialize to JSON, which allows you to pick your favourite JSON library, `oj` is recommended as its fast.
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class MySchema < SimpleJsonSchemaBuilder::Base
+  object do
+    string :string_test, required: false, examples: "blue while"
+    boolean :boolean_test, examples: [ "blah", "bleh" ]
+    string :str_array_test, array: true
+    string :string_enums, enum: [ "test1", "test2" ]
+    string :string_enum_arrays, array: true, enum: [ "test1", "test2" ]
+
+    object :other_info, required: true do
+      string :string_test, required: true
+      boolean :boolean_test
+    end
+
+    object :other_info_arr, array: true do
+      string :string_test, required: true
+      boolean :boolean_test
+    end
+
+    object :subschema_arr, array: true, schema: Subschema
+    object :subschema, schema: Subschema
+  end
+end
+
+class Subschema < SimpleJsonSchemaBuilder::Base
+  object do
+    string :test1
+    integer :test2, required: true
+  end
+end
+```
+
+Will serialize to:
+
+```json
+{
+  "type": "object",
+  "required": ["other_info"],
+  "properties": {
+    "string_test": {
+      "type": "string",
+      "examples": ["blue while"]
+    },
+    "boolean_test": {
+      "type": "boolean",
+      "examples": ["blah", "bleh"]
+    },
+    "str_array_test": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "string_enums": {
+      "type": "string",
+      "enum": ["test1", "test2"]
+    },
+    "string_enum_arrays": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["test1", "test2"]
+      }
+    },
+    "other_info": {
+      "type": "object",
+      "required": ["string_test"],
+      "properties": {
+        "string_test": {
+          "type": "string"
+        },
+        "boolean_test": {
+          "type": "boolean"
+        }
+      }
+    },
+    "other_info_arr": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["string_test"],
+        "properties": {
+          "string_test": {
+            "type": "string"
+          },
+          "boolean_test": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "subschema_arr": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["test2"],
+        "properties": {
+          "test1": {
+            "type": "string"
+          },
+          "test2": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "subschema": {
+      "type": "object",
+      "required": ["test2"],
+      "properties": {
+        "test1": {
+          "type": "string"
+        },
+        "test2": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
+```
+
+TODO: needs sensible examples
 
 ## Development
 
@@ -32,7 +158,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/mooktakim/simple_json_schema_builder. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/mooktakim/simple_json_schema_builder/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at <https://github.com/mooktakim/simple_json_schema_builder>. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/mooktakim/simple_json_schema_builder/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
