@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     simple_json_schema_builder (0.1.0)
+      multi_json (~> 1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -10,6 +11,7 @@ GEM
     diff-lcs (1.5.1)
     json (2.7.2)
     language_server-protocol (3.17.0.3)
+    multi_json (1.15.0)
     parallel (1.26.3)
     parser (3.3.5.0)
       ast (~> 2.4.1)

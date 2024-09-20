@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "multi_json"
+
 module SimpleJsonSchemaBuilder
   class Base
     def self.object(&block)
@@ -12,7 +14,7 @@ module SimpleJsonSchemaBuilder
     end
 
     def self.to_json
-      schema.to_json
+      MultiJson.dump(schema)
     end
 
     def initialize
