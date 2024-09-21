@@ -1,6 +1,6 @@
 # SimpleJsonSchemaBuilder
 
-A simple DSL to help you write JSON Schema in ruby.
+A simple, yet powerful DSL to help you create JSON Schemas in Ruby effortlessly.
 
 ## Installation
 
@@ -22,133 +22,114 @@ Or install it yourself as:
 gem install simple_json_schema_builder
 ```
 
-`simple_json_schema_builder` depends on [multi_json](https://github.com/intridea/multi_json) to serialize to JSON, which allows you to pick your favourite JSON library, `oj` is recommended as its fast.
+**Note:** `simple_json_schema_builder` depends on [multi_json](https://github.com/intridea/multi_json) for JSON serialization, which allows you to choose your preferred JSON library.
+It is recommended to use `oj` as its really fast.
 
 ## Usage
 
+Here's an example demonstrating how to use `SimpleJsonSchemaBuilder`:
+
 ```ruby
-class MySchema < SimpleJsonSchemaBuilder::Base
+class UserSchema < SimpleJsonSchemaBuilder::Base
   object do
-    string :string_test, required: false, examples: "blue while"
-    boolean :boolean_test, examples: [ "blah", "bleh" ]
-    string :str_array_test, array: true
-    string :string_enums, enum: [ "test1", "test2" ]
-    string :string_enum_arrays, array: true, enum: [ "test1", "test2" ]
+    string :name, required: true, examples: ["John Doe"]
+    integer :age, required: false, examples: [30]
+    boolean :is_active, required: false, examples: [true, false]
+    string :role, enum: ["admin", "user", "guest"], examples: ["user"]
+    string :tags, array: true, examples: ["ruby", "json"]
 
-    object :other_info, required: true do
-      string :string_test, required: true
-      boolean :boolean_test
+    object :contact_info, required: true do
+      string :email, required: true, examples: ["johndoe@example.com"]
+      string :phone_number, required: false, examples: ["123-456-7890"]
     end
 
-    object :other_info_arr, array: true do
-      string :string_test, required: true
-      boolean :boolean_test
+    object :addresses, array: true do
+      string :street, required: true, examples: ["123 Main St"]
+      string :city, required: true, examples: ["Springfield"]
+      string :country, required: true, examples: ["USA"]
     end
 
-    object :subschema_arr, array: true, schema: Subschema
-    object :subschema, schema: Subschema
+    object :account_preferences, schema: AccountPreferences
   end
 end
 
-class Subschema < SimpleJsonSchemaBuilder::Base
+class AccountPreferences < SimpleJsonSchemaBuilder::Base
   object do
-    string :test1
-    integer :test2, required: true
+    boolean :receive_newsletter, required: false, examples: [true]
+    string :preferred_language, enum: ["en", "es", "fr"], required: true, examples: ["en"]
   end
 end
 ```
 
-Will serialize to:
+The above code will serialize to the following JSON Schema:
 
 ```json
 {
   "type": "object",
-  "required": ["other_info"],
+  "required": ["name", "contact_info"],
   "properties": {
-    "string_test": {
+    "name": {
       "type": "string",
-      "examples": ["blue while"]
+      "examples": ["John Doe"]
     },
-    "boolean_test": {
+    "age": {
+      "type": "integer",
+      "examples": [30]
+    },
+    "is_active": {
       "type": "boolean",
-      "examples": ["blah", "bleh"]
+      "examples": [true, false]
     },
-    "str_array_test": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "string_enums": {
+    "role": {
       "type": "string",
-      "enum": ["test1", "test2"]
+      "examples": ["user"],
+      "enum": ["admin", "user", "guest"]
     },
-    "string_enum_arrays": {
+    "tags": {
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["test1", "test2"]
+        "examples": ["ruby", "json"]
       }
     },
-    "other_info": {
+    "contact_info": {
       "type": "object",
-      "required": ["string_test"],
+      "required": ["email"],
       "properties": {
-        "string_test": {
-          "type": "string"
+        "email": {
+          "type": "string",
+          "examples": ["johndoe@example.com"]
         },
-        "boolean_test": {
-          "type": "boolean"
+        "phone_number": {
+          "type": "string",
+          "examples": ["123-456-7890"]
         }
       }
     },
-    "other_info_arr": {
+    "addresses": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["string_test"],
+        "required": ["street", "city", "country"],
         "properties": {
-          "string_test": {
-            "type": "string"
+          "street": {
+            "type": "string",
+            "examples": ["123 Main St"]
           },
-          "boolean_test": {
-            "type": "boolean"
-          }
-        }
-      }
-    },
-    "subschema_arr": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["test2"],
-        "properties": {
-          "test1": {
-            "type": "string"
+          "city": {
+            "type": "string",
+            "examples": ["Springfield"]
           },
-          "test2": {
-            "type": "integer"
+          "country": {
+            "type": "string",
+            "examples": ["USA"]
           }
-        }
-      }
-    },
-    "subschema": {
-      "type": "object",
-      "required": ["test2"],
-      "properties": {
-        "test1": {
-          "type": "string"
-        },
-        "test2": {
-          "type": "integer"
         }
       }
     }
   }
 }
 ```
-
-TODO: needs sensible examples
 
 ## Development
 
