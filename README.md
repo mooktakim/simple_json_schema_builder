@@ -61,7 +61,7 @@ class AccountPreferences < SimpleJsonSchemaBuilder::Base
 end
 ```
 
-The above code will serialize to the following JSON Schema:
+The above code will serialize `UserSchema.schema` to the following JSON Schema:
 
 ```json
 {
