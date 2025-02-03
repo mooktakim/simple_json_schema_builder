@@ -81,7 +81,8 @@ module SimpleJsonSchemaBuilder
     attr_reader :properties, :required_key_names, :description, :default_required
 
     def add_required(key_name, required)
-      return unless default_required || required
+      req = (required.nil? ? default_required : required)
+      return unless req
 
       @required_key_names << key_name
     end
