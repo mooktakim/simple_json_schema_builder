@@ -2,13 +2,13 @@
 
 class TestSchema < SimpleJsonSchemaBuilder::Base
   class TestSubSchema < SimpleJsonSchemaBuilder::Base
-    object do
+    object description: "sub object desc" do
       string :test1
       integer :test2, required: true
     end
   end
 
-  object do
+  object description: "object desc" do
     string :string1,
            required: true,
            title: "String1 Title",
@@ -98,6 +98,7 @@ RSpec.describe SimpleJsonSchemaBuilder::Base do
   describe ".schema" do
     it "correctly formats schema" do
       expect(subject[:type]).to eq("object")
+      expect(subject[:description]).to eq("object desc")
       expect(subject[:required]).to eq(%i[string1 string3 integer1 integer3 number1 number3 boolean1 object1 object3])
 
       # String
@@ -170,6 +171,7 @@ RSpec.describe SimpleJsonSchemaBuilder::Base do
       expect(properties[:object2][:items][:required]).to eq([:obj_test2])
 
       expect(properties[:object3][:type]).to eq("object")
+      expect(properties[:object3][:description]).to eq("sub object desc")
       expect(properties[:object3][:properties][:test1][:type]).to eq("string")
       expect(properties[:object3][:properties][:test2][:type]).to eq("integer")
       expect(properties[:object3][:required]).to eq([:test2])

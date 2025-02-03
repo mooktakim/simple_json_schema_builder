@@ -4,8 +4,8 @@ require "multi_json"
 
 module SimpleJsonSchemaBuilder
   class Base
-    def self.object(&block)
-      @schema ||= Base.new
+    def self.object(description: nil, &block)
+      @schema ||= Base.new(description: description)
       @schema.instance_eval(&block)
     end
 
@@ -17,9 +17,10 @@ module SimpleJsonSchemaBuilder
       MultiJson.dump(schema)
     end
 
-    def initialize
+    def initialize(description: nil)
       @properties = {}
       @required_key_names = []
+      @description = description
     end
 
     def string(key_name, required: false, title: nil, description: nil, array: false, examples: [], enum: nil)
@@ -46,13 +47,13 @@ module SimpleJsonSchemaBuilder
       add_array(key_name, array)
     end
 
-    def object(key_name = nil, required: false, array: false, schema: nil, &block)
+    def object(key_name = nil, required: false, description: nil, array: false, schema: nil, &block)
       add_required(key_name, required)
 
       if schema
         nested_object = schema
       else
-        nested_object = Base.new
+        nested_object = Base.new(description: description)
         nested_object.instance_eval(&block)
       end
 
@@ -67,6 +68,7 @@ module SimpleJsonSchemaBuilder
     def schema
       {
         type: "object",
+        description: description,
         required: (required_key_names unless required_key_names.empty?),
         properties: properties,
       }.compact
@@ -74,7 +76,7 @@ module SimpleJsonSchemaBuilder
 
     private
 
-    attr_reader :properties, :required_key_names
+    attr_reader :properties, :required_key_names, :description
 
     def add_required(key_name, required)
       return unless required
