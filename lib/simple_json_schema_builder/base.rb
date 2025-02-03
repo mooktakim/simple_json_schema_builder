@@ -48,14 +48,14 @@ module SimpleJsonSchemaBuilder
       add_array(key_name, array)
     end
 
-    def object(key_name = nil, required: nil, default_required: false, description: nil, array: false, schema: nil, &block)
-      @default_required = default_required
+    def object(key_name = nil, required: nil, default_required: nil, description: nil, array: false, schema: nil, &block)
       add_required(key_name, required)
 
       if schema
         nested_object = schema
       else
-        nested_object = Base.new(description: description)
+        required = default_required.nil? ? @default_required : default_required
+        nested_object = Base.new(description: description, default_required: required)
         nested_object.instance_eval(&block)
       end
 

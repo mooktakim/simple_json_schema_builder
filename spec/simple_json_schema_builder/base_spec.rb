@@ -95,6 +95,11 @@ class TestDefaultRequiredTrueSchema < SimpleJsonSchemaBuilder::Base
   object default_required: true do
     string :test1
     string :test2, required: true
+
+    object :subtest do
+      string :test3
+      string :test4, required: true
+    end
   end
 end
 
@@ -102,6 +107,11 @@ class TestDefaultRequiredFalseSchema < SimpleJsonSchemaBuilder::Base
   object default_required: false do
     string :test1
     string :test2, required: true
+
+    object :subtest do
+      string :test3
+      string :test4, required: true
+    end
   end
 end
 
@@ -212,7 +222,10 @@ RSpec.describe SimpleJsonSchemaBuilder::Base do
 
       it "correctly formats schema" do
         expect(subject[:type]).to eq("object")
-        expect(subject[:required]).to eq(%i[test1 test2])
+        expect(subject[:required]).to eq(%i[test1 test2 subtest])
+
+        expect(properties[:subtest][:type]).to eq("object")
+        expect(properties[:subtest][:required]).to eq(%i[test3 test4])
       end
     end
 
@@ -222,6 +235,9 @@ RSpec.describe SimpleJsonSchemaBuilder::Base do
       it "correctly formats schema" do
         expect(subject[:type]).to eq("object")
         expect(subject[:required]).to eq(%i[test2])
+
+        expect(properties[:subtest][:type]).to eq("object")
+        expect(properties[:subtest][:required]).to eq(%i[test4])
       end
     end
   end
