@@ -4,8 +4,8 @@ require "multi_json"
 
 module SimpleJsonSchemaBuilder
   class Base
-    def self.object(description: nil, &block)
-      @schema ||= Base.new(description: description)
+    def self.object(description: nil, default_required: false, &block)
+      @schema ||= Base.new(description: description, default_required: default_required)
       @schema.instance_eval(&block)
     end
 
@@ -17,37 +17,39 @@ module SimpleJsonSchemaBuilder
       MultiJson.dump(schema)
     end
 
-    def initialize(description: nil)
+    def initialize(description: nil, default_required: false)
       @properties = {}
       @required_key_names = []
       @description = description
+      @default_required = default_required
     end
 
-    def string(key_name, required: false, title: nil, description: nil, array: false, examples: [], enum: nil)
+    def string(key_name, required: nil, title: nil, description: nil, array: false, examples: [], enum: nil)
       add_required(key_name, required)
       add_property("string", key_name, title: title, description: description, examples: examples, enum: enum)
       add_array(key_name, array)
     end
 
-    def integer(key_name, required: false, title: nil, description: nil, array: false, examples: [], enum: nil)
+    def integer(key_name, required: nil, title: nil, description: nil, array: false, examples: [], enum: nil)
       add_required(key_name, required)
       add_property("integer", key_name, title: title, description: description, examples: examples, enum: enum)
       add_array(key_name, array)
     end
 
-    def number(key_name, required: false, title: nil, description: nil, array: false, examples: [], enum: nil)
+    def number(key_name, required: nil, title: nil, description: nil, array: false, examples: [], enum: nil)
       add_required(key_name, required)
       add_property("number", key_name, title: title, description: description, examples: examples, enum: enum)
       add_array(key_name, array)
     end
 
-    def boolean(key_name, required: false, title: nil, description: nil, array: false, examples: [])
+    def boolean(key_name, required: nil, title: nil, description: nil, array: false, examples: [])
       add_required(key_name, required)
       add_property("boolean", key_name, title: title, description: description, examples: examples, enum: nil)
       add_array(key_name, array)
     end
 
-    def object(key_name = nil, required: false, description: nil, array: false, schema: nil, &block)
+    def object(key_name = nil, required: nil, default_required: false, description: nil, array: false, schema: nil, &block)
+      @default_required = default_required
       add_required(key_name, required)
 
       if schema
@@ -76,10 +78,10 @@ module SimpleJsonSchemaBuilder
 
     private
 
-    attr_reader :properties, :required_key_names, :description
+    attr_reader :properties, :required_key_names, :description, :default_required
 
     def add_required(key_name, required)
-      return unless required
+      return unless default_required || required
 
       @required_key_names << key_name
     end

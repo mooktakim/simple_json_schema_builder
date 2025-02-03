@@ -91,6 +91,20 @@ class TestSchema < SimpleJsonSchemaBuilder::Base
   end
 end
 
+class TestDefaultRequiredTrueSchema < SimpleJsonSchemaBuilder::Base
+  object default_required: true do
+    string :test1
+    string :test2, required: true
+  end
+end
+
+class TestDefaultRequiredFalseSchema < SimpleJsonSchemaBuilder::Base
+  object default_required: false do
+    string :test1
+    string :test2, required: true
+  end
+end
+
 RSpec.describe SimpleJsonSchemaBuilder::Base do
   subject { TestSchema.schema }
   let(:properties) { subject[:properties] }
@@ -189,6 +203,26 @@ RSpec.describe SimpleJsonSchemaBuilder::Base do
       json = TestSchema.to_json
       hash = MultiJson.load(json)
       expect(hash["type"]).to eq("object")
+    end
+  end
+
+  describe "required by default" do
+    describe "when true" do
+      subject { TestDefaultRequiredTrueSchema.schema }
+
+      it "correctly formats schema" do
+        expect(subject[:type]).to eq("object")
+        expect(subject[:required]).to eq(%i[test1 test2])
+      end
+    end
+
+    describe "when false" do
+      subject { TestDefaultRequiredFalseSchema.schema }
+
+      it "correctly formats schema" do
+        expect(subject[:type]).to eq("object")
+        expect(subject[:required]).to eq(%i[test2])
+      end
     end
   end
 end
